@@ -45,6 +45,7 @@ export const getInputFromRequest = async (
     filter: (part) => (part.mimetype === "application/pdf"),
   });
   const [fields, files] = await form.parse(req);
+  console.log({files, fields})
   const document = files.document?.at(0);
   if (!document) {
     throw new Error("Document was not provided.");
@@ -142,7 +143,8 @@ export const getGptOutput = async (
     logger.error(response.data);
     throw new Error(response.statusText);
   }
-  const content: string = response.data[0].message.content;
+  logger.info(response.data)
+  const content: string = response.data["choices"][0]['message']['content'];
   const data: IParsedGptOutput = JSON.parse(content.slice(7, -3));
   if (!data.slides) {
     throw new Error("GPT did not understand your document well.");

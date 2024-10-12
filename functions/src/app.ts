@@ -13,7 +13,7 @@ app.use(router);
 
 if (require.main == module) {
   const server = http.createServer(app);
-  const PORT = process.env.PORT || 8000;
+  const PORT = process.env.PORT || 8010;
   server.listen(PORT, () => {
     console.log(`Server listening at http://localhost:${PORT}`);
   });
