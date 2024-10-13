@@ -144,10 +144,10 @@ export const getGptOutput = async (
     logger.error(response.data);
     throw new Error(response.statusText);
   }
-  logger.info(response.data);
   const content: string = response.data["choices"][0]["message"]["content"];
   const data: IParsedGptOutput = JSON.parse(content.slice(7, -3));
   if (!data.slides) {
+    logger.error(response.data);
     throw new Error("GPT did not understand your document well.");
   }
   return data;
