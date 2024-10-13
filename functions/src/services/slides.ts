@@ -10,28 +10,28 @@ import {
 
 
 interface IUserInput {
-  title: string,
-  document: formidable.File,
+  title: string;
+  document: formidable.File;
 }
 
 interface IPDFPage {
-  pageNumber: number,
-  content: string,
-  links: string,
+  pageNumber: number;
+  content: string;
+  links: string;
 }
 
 interface ISlide {
-  content: string,
-  title: string,
-  pageNumber?: number,
+  content: string;
+  title: string;
+  pageNumber?: number;
 }
 
 interface IParsedGptOutput {
   meta: {
-    title: string,
-    headline: string,
-  },
-  slides: ISlide[],
+    title: string;
+    headline: string;
+  };
+  slides: ISlide[];
 }
 
 
@@ -45,7 +45,7 @@ export const getInputFromRequest = async (
     filter: (part) => (part.mimetype === "application/pdf"),
   });
   const [fields, files] = await form.parse(req);
-  console.log({files, fields})
+  console.log({files, fields});
   const document = files.document?.at(0);
   if (!document) {
     throw new Error("Document was not provided.");
@@ -121,7 +121,8 @@ export const getGptOutput = async (
             text: `The JSON response object should strictly have the keys 
             meta and slides. Meta is a dictionary with the keys title and 
             headline. Slides is an array of dictionaries with keys title, 
-            content and pageNumber`.replaceAll("\n", " "),
+            content and pageNumber. The content of a slide should have 
+            strictly 20 to 30 words`.replaceAll("\n", " "),
           },
         ],
 
@@ -143,8 +144,8 @@ export const getGptOutput = async (
     logger.error(response.data);
     throw new Error(response.statusText);
   }
-  logger.info(response.data)
-  const content: string = response.data["choices"][0]['message']['content'];
+  logger.info(response.data);
+  const content: string = response.data["choices"][0]["message"]["content"];
   const data: IParsedGptOutput = JSON.parse(content.slice(7, -3));
   if (!data.slides) {
     throw new Error("GPT did not understand your document well.");
