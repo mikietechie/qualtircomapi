@@ -6,7 +6,7 @@ lib/**/*.js.map
 typings/
 tmp/
 *.env
-
+firebase-debug.log
 # Node.js dependency directory
 node_modules/
 *.local
