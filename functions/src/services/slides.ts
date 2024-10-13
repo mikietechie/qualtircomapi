@@ -37,14 +37,13 @@ interface IParsedGptOutput {
 export const getInputFromRequest = async (
   req: Request
 ): Promise<IUserInput> => {
-  const title = req.body?.title || "";
-  const file = req.file;
-  if (!file) {
+  const {title, document} = req.body;
+  if (!document) {
     throw new Error("Document was not provided.");
   }
   return {
     title,
-    document: file.buffer,
+    document: Buffer.from(document, "base64"),
   };
 };
 

@@ -6,9 +6,7 @@ import router from "./routes";
 
 
 const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.raw());
+app.use(express.json({limit: "6mb"}));
 app.use(cors({ origin: "*" }));
 app.use(router);
 
