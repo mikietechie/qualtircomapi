@@ -1,8 +1,6 @@
 /* eslint-disable no-empty */
 import { Request } from "express";
 import * as logger from "firebase-functions/logger";
-import * as formidable from "formidable";
-import * as fs from "node:fs";
 import axios from "axios";
 import {
   PDFExtract,
@@ -12,7 +10,7 @@ import {
 
 interface IUserInput {
   title: string;
-  document: formidable.File;
+  document: Buffer;
 }
 
 interface IPDFPage {
@@ -39,20 +37,15 @@ interface IParsedGptOutput {
 export const getInputFromRequest = async (
   req: Request
 ): Promise<IUserInput> => {
-  const form = formidable.formidable({
-    maxFiles: 1,
-    maxFields: 2,
-    maxFileSize: 5 * 1024 * 1024,
-    filter: (part) => (part.mimetype === "application/pdf"),
-  });
-  const [fields, files] = await form.parse(req);
-  console.log({ files, fields });
-  const document = files.document?.at(0);
-  if (!document) {
+  const title = req.body?.title || "";
+  const file = req.file;
+  if (!file) {
     throw new Error("Document was not provided.");
   }
-  const title = fields.title?.at(0) || "";
-  return { title, document };
+  return {
+    title,
+    document: file.buffer,
+  };
 };
 
 
@@ -62,17 +55,12 @@ export const getTextPagesFromPDF = async (
   const pdfExtract = new PDFExtract();
   let data: PDFExtractResult;
   try {
-    data = await pdfExtract.extract(
-      payload.document.filepath,
+    data = await pdfExtract.extractBuffer(
+      payload.document,
       {}
     );
   } catch (error) {
     throw new Error(error as never as string);
-  } finally {
-    fs.unlink(payload.document.filepath, (err) => {
-      logger.error(`Failed to delete file ${payload.document.filepath}`);
-      logger.error(err);
-    });
   }
   const pages = data.pages.map((page) => Object.assign({
     pageNumber: page.pageInfo.num,
