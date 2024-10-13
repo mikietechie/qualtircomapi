@@ -23,6 +23,8 @@ export const slidesController = async (
     try {
       data = await getGptOutput(payload.title, pages);
     } catch (error) {
+      logger.error("Failed to get GPT data");
+      logger.error(error);
       data = await getPDFOutput(payload.title, pages);
     }
     res.json(data).status(200).end();
