@@ -14,7 +14,7 @@ if (require.main == module) {
   const server = http.createServer(app);
   const PORT = process.env.PORT || 8010;
   server.listen(PORT, () => {
-    logger.info(`Server listening at http://localhost:${PORT}`);
+    logger.info(`Live :\thttp://localhost:${PORT}`);
   });
 }
 

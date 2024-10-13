@@ -1,10 +1,11 @@
 import * as express from "express";
 import * as logger from "firebase-functions/logger";
 import {
-  // getGptOutput,
+  getGptOutput,
   getInputFromRequest,
   getPDFOutput,
   getTextPagesFromPDF,
+  IOutout,
 } from "../services/slides";
 
 export const slidesController = async (
@@ -18,8 +19,12 @@ export const slidesController = async (
   try {
     const payload = await getInputFromRequest(req);
     const pages = await getTextPagesFromPDF(payload);
-    const data = await getPDFOutput(payload.title, pages);
-    // const data = await getGptOutput(payload.title, pages);
+    let data: IOutout;
+    try {
+      data = await getGptOutput(payload.title, pages);
+    } catch (error) {
+      data = await getPDFOutput(payload.title, pages);
+    }
     res.json(data).status(200).end();
   } catch (error) {
     res.json({

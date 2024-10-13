@@ -25,7 +25,7 @@ interface ISlide {
   pageNumber?: number;
 }
 
-interface IParsedGptOutput {
+export interface IOutout {
   meta: {
     title: string;
     headline: string;
@@ -75,7 +75,7 @@ export const getTextPagesFromPDF = async (
 export const getPDFOutput = async (
   title: string,
   pages: IPDFPage[]
-): Promise<IParsedGptOutput> => {
+): Promise<IOutout> => {
   // Development mode function, used when we cannot access GPT API
   return {
     meta: {
@@ -100,7 +100,7 @@ export const getPDFOutput = async (
 export const getGptOutput = async (
   title: string,
   pages: IPDFPage[]
-): Promise<IParsedGptOutput> => {
+): Promise<IOutout> => {
   const openApiUrl = "https://api.openai.com/v1/chat/completions";
   const TOKEN = process.env.OPENAPI_KEY;
   const body = `The document is about ${title}. I want a slide for every 
@@ -166,7 +166,7 @@ export const getGptOutput = async (
 };
 
 
-const parseGptContent = (content: string): IParsedGptOutput => {
+const parseGptContent = (content: string): IOutout => {
   try {
     return JSON.parse(content);
   } catch (_) { }
