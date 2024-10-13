@@ -76,10 +76,31 @@ export const getTextPagesFromPDF = async (
   }
   const pages = data.pages.map((page) => Object.assign({
     pageNumber: page.pageInfo.num,
-    content: page.content.map((content) => content.str).join(" "),
+    content: page.content
+      .map((content) => content.str)
+      .filter((content) => content !== "")
+      .join(" "),
     links: page.links.join(","),
   }));
   return pages;
+};
+
+export const getPDFOutput = async (
+  title: string,
+  pages: IPDFPage[]
+): Promise<IParsedGptOutput> => {
+  // Development mode function, used when we cannot access GPT API
+  return {
+    meta: {
+      title,
+      headline: title,
+    },
+    slides: pages.map((page, index) => Object.assign({
+      pageNumber: index + 1,
+      title: page.content.slice(0, 20),
+      content: page.content.slice(0, 200) + "...",
+    })),
+  };
 };
 
 /**
@@ -93,6 +114,7 @@ export const getGptOutput = async (
   title: string,
   pages: IPDFPage[]
 ): Promise<IParsedGptOutput> => {
+  return getPDFOutput(title, pages);
   const openApiUrl = "https://api.openai.com/v1/chat/completions";
   const TOKEN = process.env.OPENAPI_KEY;
   const body = `The document is about ${title}. I want a slide for every 
