@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import { Request } from "express";
 import * as logger from "firebase-functions/logger";
 import * as formidable from "formidable";
@@ -147,9 +148,9 @@ export const getGptOutput = async (
     throw new Error(response.statusText);
   }
   const content: string = response.data["choices"][0]["message"]["content"];
-  const data = parseGptContent(content)
-  logger.debug("Parsed GPT data")
-  logger.debug(data)
+  const data = parseGptContent(content);
+  logger.debug("Parsed GPT data");
+  logger.debug(data);
   if (!data.slides) {
     throw new Error("GPT did not understand your document well.");
   }
@@ -159,18 +160,18 @@ export const getGptOutput = async (
 
 const parseGptContent = (content: string): IParsedGptOutput => {
   try {
-    return JSON.parse(content)
+    return JSON.parse(content);
   } catch (_) { }
   try {
     return JSON.parse(
       content.slice(content.indexOf("{"), content.indexOf("}") + 1)
-    )
+    );
   } catch (_) { }
   try {
-    return JSON.parse(content.slice(7, -3))
+    return JSON.parse(content.slice(7, -3));
   } catch (_) { }
   try {
-    return JSON.parse(content.replaceAll('\\"', '"'))
+    return JSON.parse(content.replaceAll("\\\"", "\""));
   } catch (_) { }
-  return {} as never
-}
+  return {} as never;
+};
