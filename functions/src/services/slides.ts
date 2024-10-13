@@ -45,7 +45,7 @@ export const getInputFromRequest = async (
     filter: (part) => (part.mimetype === "application/pdf"),
   });
   const [fields, files] = await form.parse(req);
-  console.log({files, fields});
+  console.log({ files, fields });
   const document = files.document?.at(0);
   if (!document) {
     throw new Error("Document was not provided.");
@@ -103,7 +103,8 @@ export const getGptOutput = async (
     messages: [
       {
         role: "system",
-        content: "You are an assistant that responds in JSON format only.",
+        content: `You are an assistant that responds in plain JSON format only.
+        I must be able to parse the JSON using JavaScript JSON.parse function`,
       },
       {
         role: "user",
@@ -140,15 +141,36 @@ export const getGptOutput = async (
       },
     },
   );
+  logger.info("Open API Response\n");
+  logger.info(response.data);
   if (response.status !== 200) {
-    logger.error(response.data);
     throw new Error(response.statusText);
   }
   const content: string = response.data["choices"][0]["message"]["content"];
-  const data: IParsedGptOutput = JSON.parse(content.slice(7, -3));
+  const data = parseGptContent(content)
+  logger.debug("Parsed GPT data")
+  logger.debug(data)
   if (!data.slides) {
-    logger.error(response.data);
     throw new Error("GPT did not understand your document well.");
   }
   return data;
 };
+
+
+const parseGptContent = (content: string): IParsedGptOutput => {
+  try {
+    return JSON.parse(content)
+  } catch (_) { }
+  try {
+    return JSON.parse(
+      content.slice(content.indexOf("{"), content.indexOf("}") + 1)
+    )
+  } catch (_) { }
+  try {
+    return JSON.parse(content.slice(7, -3))
+  } catch (_) { }
+  try {
+    return JSON.parse(content.replaceAll('\\"', '"'))
+  } catch (_) { }
+  return {} as never
+}

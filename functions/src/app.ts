@@ -1,6 +1,7 @@
 import * as http from "node:http";
 import * as express from "express";
 import * as cors from "cors";
+import * as logger from "firebase-functions/logger";
 import router from "./routes";
 
 
@@ -15,7 +16,7 @@ if (require.main == module) {
   const server = http.createServer(app);
   const PORT = process.env.PORT || 8010;
   server.listen(PORT, () => {
-    console.log(`Server listening at http://localhost:${PORT}`);
+    logger.info(`Server listening at http://localhost:${PORT}`);
   });
 }
 
